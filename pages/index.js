@@ -1,37 +1,7 @@
+import React from 'react';
+import { useRouter } from 'next/router';
 import { Box, Button,TextField, Text, Image } from '@skynexui/components';
 import appConfig from '../config.json';
-
-function GlobalStyle() {
-    return (
-        <style global jsx>
-            {`
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-                list-style: none;
-            }
-
-            body {
-                font-family: 'Open Sans', sans-serif;
-            }
-            /* App fit Height */
-            html, body, #__next {
-                min-height: 100vh;
-                display: flex;
-                flex: 1;
-            }
-            #__next {
-                flex: 1;
-            }
-            #__next > * {
-                flex: 1;
-            }
-            /* ./App fit Height */
-        `}
-        </style>
-    );
-}
 
 function Titulo(props) {
     const Tag = props.tag || "h1";
@@ -64,19 +34,49 @@ function Titulo(props) {
 // export default HomePage
 
 export default function PaginaInicial() {
-    const username = 'ju-c-lopes';
+    // const username = 'ju-c-lopes';
+    const [username, setUsername] = React.useState('ju-c-lopes');
+    const roteamento = useRouter();
+    const [environ, setEnv] = React.useState('light');
+    const [colored, setColor] = React.useState('100');
+    const [c, setC] = React.useState('700');
 
     return (
         <>
-            <GlobalStyle />
             <Box
                 styleSheet={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    backgroundColor: appConfig.theme.colors.neutrals[300],
+                    backgroundColor: appConfig.theme.colors.neutrals[`${colored}`],
                     backgroundImage: 'url(https://i.imgur.com/tPxs21E.jpg)',
                     backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundBlendMode: 'multiply',
                 }}
             >
+            <Button
+                // type='submit'
+                label={environ}
+                fullWidth
+                styleSheet={{
+                    position: 'absolute', display: 'block', flexDirection: 'column',
+                    top: '10vh',
+                    alignItems: 'center', justifyContent: 'center',
+                    backgroundColor: appConfig.theme.colors.neutrals[`${c}`],
+                    width: '10vw', height: '5vh', borderRadius: '25px',
+                }}
+                // onClick button alterará modo escuro e claro
+                onClick={ function() {
+                    const newEnv = environ === 'light' ? 900 : 100;
+                    setEnv(environ === 'light' ? 'dark' : 'light')
+                    setColor(newEnv)
+                    setC(colored < 200 ? 900 : 700);
+                }}
+
+                buttonColors={{
+                    contrastColor: appConfig.theme.colors.neutrals["000"],
+                    mainColor: appConfig.theme.colors.neutrals[500],
+                    mainColorLight: appConfig.theme.colors.neutrals[400],
+                    mainColorStrong: appConfig.theme.colors.neutrals[600],
+                }}
+            />
             <Box
                 styleSheet={{
                     display: 'flex',
@@ -89,12 +89,24 @@ export default function PaginaInicial() {
                     width: '100%', maxWidth: '700px',
                     borderRadius: '5px', padding: '32px', margin: '16px',
                     boxShadow: '0 2px 10px 0 rgb(0 0 0 / 20%)',
-                    backgroundColor: appConfig.theme.colors.neutrals[700],
+                    backgroundColor: appConfig.theme.colors.neutrals[`${c}`],
+                }}
+                onChange={ function () {
+                    
+                    console.log(c)
                 }}
             >
             {/* Formulário */}
             <Box
                 as="form"
+                onSubmit={function (InfosDoEvento) {
+                    InfosDoEvento.preventDefault();
+                    console.log('Submetido');
+
+                    // window.location.href = '/chat';
+
+                    roteamento.push('/chat');
+                }}
                 styleSheet={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                     width: { xs: '100%', sm: '50%' }, textAlign: 'center', marginBottom: '32px',
@@ -105,7 +117,27 @@ export default function PaginaInicial() {
                     {appConfig.name}
                 </Text>
 
+                {/* <input 
+                    type="text"
+                    value={username}
+                    onChange={function (event) {
+                        console.log('usuário digitou', event.target.value);
+                        // Onde tá o valor?
+                        const valor = event.target.value;
+                        // Trocar o valor da variável
+                        setUsername(valor);
+                    }}
+                /> */}
+
                 <TextField
+                    value={username}
+                    onChange={function (event) {
+                        console.log('usuário digitou', event.target.value);
+                        // Onde tá o valor?
+                        const valor = event.target.value;
+                        // Trocar o valor da variável
+                        setUsername(valor);
+                    }}
                     fullWidth
                     textFieldColors={{
                         neutral: {
