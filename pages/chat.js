@@ -108,7 +108,12 @@ export default function ChatPage() {
                     }}
                 >
 
-                    <MessageList mensagens={chat} />
+                    <MessageList mensagens={chat} colors={c} remover={(ident) => {
+                        chat.shift(ident);
+                        setChat([
+                            ...chat,
+                        ]);
+                    }} />
                     {/* {chat.map((msgAtual) => {
                         console.log(msgAtual);
                         return(
@@ -203,8 +208,6 @@ function Header() {
 }
 
 function MessageList(props) {
-    // console.log(props)
-    // console.log('MessageList', props);
     return (
         <Box
             tag="ul"
@@ -218,7 +221,6 @@ function MessageList(props) {
             }}
         >
             {props.mensagens.map((msgAtual) => {
-                console.log(msgAtual)
                 return (
                     <Text
 
@@ -261,8 +263,30 @@ function MessageList(props) {
                             >
                                 {(new Date().toLocaleDateString())}
                             </Text>
+                            <Button
+                                label="X"
+                                fullWidth
+                                styleSheet={{
+                                    position: 'relative',
+                                    display: 'inline-flex', float: 'right',
+                                    backgroundColor: appConfig.theme.colors.neutrals[`${props.colors - 100}`],
+                                    width: '25px', height: '25px', borderRadius: '25px',
+                                }}
+                                // onClick button exluirá msg atual
+                                onClick={function () {
+                                    props.remover(msgAtual.id - 1);
+                                }}
+
+                                buttonColors={{
+                                    contrastColor: appConfig.theme.colors.neutrals["000"],
+                                    mainColor: appConfig.theme.colors.neutrals[500],
+                                    mainColorLight: appConfig.theme.colors.neutrals[400],
+                                    mainColorStrong: appConfig.theme.colors.neutrals[600],
+                                }}
+                            />
                         </Box>
                         {msgAtual.texto}
+
                     </Text>
                 );
             })}
