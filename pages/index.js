@@ -56,11 +56,10 @@ export default function PaginaInicial() {
                 label={environ}
                 fullWidth
                 styleSheet={{
-                    position: 'absolute', display: 'block', flexDirection: 'column',
-                    top: '10vh',
+                    position: 'absolute', display: 'block', top: '10vh', 
                     alignItems: 'center', justifyContent: 'center',
                     backgroundColor: appConfig.theme.colors.neutrals[`${c}`],
-                    width: '10vw', height: '5vh', borderRadius: '25px',
+                    width: '15vw', height: '5vh', borderRadius: '25px',
                 }}
                 // onClick button alterará modo escuro e claro
                 onClick={ function() {
@@ -91,17 +90,17 @@ export default function PaginaInicial() {
                     boxShadow: '0 2px 10px 0 rgb(0 0 0 / 20%)',
                     backgroundColor: appConfig.theme.colors.neutrals[`${c}`],
                 }}
-                onChange={ function () {
+                // onChange={ function () {
                     
-                    console.log(c)
-                }}
+                //     console.log(c)
+                // }}
             >
             {/* Formulário */}
             <Box
                 as="form"
                 onSubmit={function (InfosDoEvento) {
                     InfosDoEvento.preventDefault();
-                    console.log('Submetido');
+                    // console.log('Submetido');
 
                     // window.location.href = '/chat';
 
