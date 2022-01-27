@@ -10,4 +10,14 @@ Com professores <a href="https://github.com/omariosouto">Mario Souto</a> e <a hr
     * Utilizando useState, foi criado um botão para escurecer e clarear o layout (dark | light)
 
 <hr><br>
-<img src="mode.gif" align="center"/>
+
+## Gif Aula 2
+
+<br>
+<img src="mode.gif" align="center">
+<hr><br>
+
+## Gif Aula 3
+
+<br>
+<img src="chat.gif" align="center">
