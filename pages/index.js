@@ -35,7 +35,7 @@ function Titulo(props) {
 
 export default function PaginaInicial() {
     // const username = 'ju-c-lopes';
-    const [username, setUsername] = React.useState('ju-c-lopes');
+    const [username, setUsername] = React.useState('');
     const roteamento = useRouter();
     const [environ, setEnv] = React.useState('light');
     const [colored, setColor] = React.useState('100');
@@ -56,7 +56,7 @@ export default function PaginaInicial() {
                 label={environ}
                 fullWidth
                 styleSheet={{
-                    position: 'absolute', display: 'block', top: '10vh', 
+                    position: 'absolute', display: 'block', top: '7vh', 
                     alignItems: 'center', justifyContent: 'center',
                     backgroundColor: appConfig.theme.colors.neutrals[`${c}`],
                     width: '15vw', height: '5vh', borderRadius: '25px',
@@ -101,10 +101,11 @@ export default function PaginaInicial() {
                 onSubmit={function (InfosDoEvento) {
                     InfosDoEvento.preventDefault();
                     // console.log('Submetido');
+                    console.log(InfosDoEvento)
 
                     // window.location.href = '/chat';
 
-                    roteamento.push('/chat');
+                    roteamento.push(`/chat?username=${username}`);
                 }}
                 styleSheet={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',

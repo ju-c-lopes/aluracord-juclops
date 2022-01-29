@@ -1,11 +1,39 @@
+// import fs from 'fs';
+// require('dotenv').config()
+
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
+import { createClient } from '@supabase/supabase-js';
+import { useRouter } from 'next/router';
+
+const SUPABASE_ANON_KEY = `${process.env.TK}`;
+const SUPABASE_URL = `${process.env.LK}`;
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// fetch(`${SUPABASE_URL}/rest/v1/messages?select=*`, {
+//     headers: {
+//         'Content-Type': 'application/json',
+//         'apikey': SUPABASE_ANON_KEY,
+//         'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+//     }
+// })
+//     .then((res) => {
+//         return res.json();
+//     })
+//     .then((response) => {
+//         console.log(response);
+//     });
+
+
+
+// console.log(dadosSup);
 
 export default function ChatPage() {
     // Sua lógica vai aqui
 
-    const [username, setUsername] = React.useState('ju-c-lopes');
+    const rota = useRouter();
+    const username = rota.query.username;
     const [environ, setEnv] = React.useState('light');
     const [colored, setColor] = React.useState('100');
     const [c, setC] = React.useState('700');
@@ -25,21 +53,42 @@ export default function ChatPage() {
 
     // Dev
     - [X] Campo criado
-    - [+/-] Vamos usar o onChange, usar o useState (ter if pra caso seja enter para limpar a variável)
-    - [ ] Lista de mensagens
+    - [X] Vamos usar o onChange, usar o useState (ter if pra caso seja enter para limpar a variável)
+    - [X] Lista de mensagens
 
     */
 
+    React.useEffect(() => {
+        supabaseClient
+            .from('chat')
+            .select('*')
+            .order('id', { ascending: false })
+            .then(({ data }) => {
+                console.log('Dados da consulta: ', data);
+                setChat(data);
+            });
+    }, []);
+
     function handleNovaMensagem(novaMensagem) {
         const msg = {
-            id: chat.length + 1,
+            // id: chat.length + 1,
             de: username,
             texto: novaMensagem,
         }
-        setChat([
-            msg,
-            ...chat,
-        ]);
+
+        supabaseClient
+            .from('chat')
+            .insert([
+                // Tem que ser um objeto com os MESMOS CAMPOS que você escreveu no supabase
+                msg
+            ])
+            .then(({ data }) => {
+                console.log('Criando mensagem: ', data);
+                setChat([
+                    data[0],
+                    ...chat,
+                ]);
+            })
         // console.log(chat)
         setMensagem('');
     }
@@ -59,7 +108,7 @@ export default function ChatPage() {
                 label={environ}
                 fullWidth
                 styleSheet={{
-                    position: 'absolute', display: 'block', top: '10vh',
+                    position: 'absolute', display: 'block', top: '7vh',
                     alignItems: 'center', justifyContent: 'center',
                     backgroundColor: appConfig.theme.colors.neutrals[`${c}`],
                     width: '15vw', height: '5vh', borderRadius: '25px',
@@ -109,10 +158,20 @@ export default function ChatPage() {
                 >
 
                     <MessageList mensagens={chat} colors={c} remover={(ident) => {
-                        chat.shift(ident);
-                        setChat([
-                            ...chat,
-                        ]);
+                        supabaseClient
+                            .from('chat')
+                            .delete()
+                            .order('id', {ascending: false})
+                            .match({'id': ident + 1})
+                            .then(({data}) => {
+                                // filtrando a lista sem a linha (row_db)
+                                const newChat = chat.filter((lista) => {
+                                    return lista.id != data[0].id;
+                                })
+                                // definindo a lista alterada com a exclusão
+                                setChat(newChat);
+                                console.log('deletado')
+                            })
                     }} />
                     {/* {chat.map((msgAtual) => {
                         console.log(msgAtual);
@@ -221,6 +280,7 @@ function MessageList(props) {
             }}
         >
             {props.mensagens.map((msgAtual) => {
+                // console.log(msgAtual.id)
                 return (
                     <Text
 

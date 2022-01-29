@@ -1,0 +1,1 @@
+environment variables = https://frontend-digest.com/environment-variables-in-next-js-9a272f0bf655
