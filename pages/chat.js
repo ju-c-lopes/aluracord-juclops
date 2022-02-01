@@ -6,6 +6,7 @@ import React from 'react';
 import appConfig from '../config.json';
 import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/router';
+import { ButtonSendSticker } from '../src/components/ButtonSendStickers';
 
 const SUPABASE_ANON_KEY = `${process.env.TK}`;
 const SUPABASE_URL = `${process.env.LK}`;
@@ -25,7 +26,18 @@ const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 //         console.log(response);
 //     });
 
-
+function listenRealTime(addMsg) {
+    return supabaseClient
+        .from('chat')
+        .on('*', resp => {
+            console.log('Houve uma alteração', resp);
+            // addMsg(resp.new);
+            if (resp.new) {
+                addMsg(resp.new);
+            }
+        })
+        .subscribe();
+}
 
 // console.log(dadosSup);
 
@@ -46,16 +58,13 @@ export default function ChatPage() {
 
     // Usuário
     /*
-
     - Usuário digita no campo textarea
     - Aperta enter para enviar
     - Tem que adicionar o texto na listagem
-
     // Dev
     - [X] Campo criado
     - [X] Vamos usar o onChange, usar o useState (ter if pra caso seja enter para limpar a variável)
     - [X] Lista de mensagens
-
     */
 
     React.useEffect(() => {
@@ -67,6 +76,18 @@ export default function ChatPage() {
                 console.log('Dados da consulta: ', data);
                 setChat(data);
             });
+
+        listenRealTime((newMsg) => {
+            setChat((updateChat) => {
+                // console.log('Ação de ADICÃO');
+
+                let chatAtual = newMsg ? [newMsg, ...updateChat] : [...updateChat];
+
+                return [
+                    ...chatAtual,
+                ];
+            });
+        });
     }, []);
 
     function handleNovaMensagem(novaMensagem) {
@@ -84,10 +105,10 @@ export default function ChatPage() {
             ])
             .then(({ data }) => {
                 console.log('Criando mensagem: ', data);
-                setChat([
-                    data[0],
-                    ...chat,
-                ]);
+                // setChat([
+                //     data[0],
+                //     ...chat,
+                // ]);
             })
         // console.log(chat)
         setMensagem('');
@@ -161,13 +182,15 @@ export default function ChatPage() {
                         supabaseClient
                             .from('chat')
                             .delete()
-                            .order('id', {ascending: false})
-                            .match({'id': ident + 1})
-                            .then(({data}) => {
+                            // .select('*')
+                            .order('id', { ascending: false })
+                            .match({ 'id': ident })
+                            .then(({ data }) => {
                                 // filtrando a lista sem a linha (row_db)
                                 const newChat = chat.filter((lista) => {
                                     return lista.id != data[0].id;
                                 })
+                                // console.log(data[0])
                                 // definindo a lista alterada com a exclusão
                                 setChat(newChat);
                                 console.log('deletado')
@@ -188,22 +211,11 @@ export default function ChatPage() {
                             alignItems: 'center',
                         }}
                     >
-                        <TextField
-                            value={mensagem}
-                            onChange={(event) => {
-                                const valor = event.target.value;
-                                setMensagem(valor);
-                            }}
-                            onKeyPress={(event) => {
-                                if (event.key === 'Enter') {
-                                    event.preventDefault();
-
-                                    handleNovaMensagem(mensagem);
-                                }
-                            }}
-                            placeholder="Insira sua mensagem aqui..."
-                            type="textarea"
+                        <Box
                             styleSheet={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
                                 width: '100%',
                                 border: '0',
                                 resize: 'none',
@@ -213,7 +225,50 @@ export default function ChatPage() {
                                 marginRight: '12px',
                                 color: appConfig.theme.colors.neutrals[200],
                             }}
-                        />
+                        >
+                            <TextField
+                                value={mensagem}
+                                id={'msgSendoEscrita'}
+                                onChange={(event) => {
+                                    const valor = event.target.value;
+                                    setMensagem(valor);
+                                }}
+                                onKeyPress={(event) => {
+                                    if (event.key === 'Enter') {
+                                        event.preventDefault();
+
+                                        handleNovaMensagem(mensagem);
+                                    }
+                                }}
+                                placeholder="Insira sua mensagem aqui..."
+                                type="textarea"
+                                styleSheet={{
+                                    width: '100%',
+                                    border: '0',
+                                    resize: 'none',
+                                    borderRadius: '5px',
+                                    padding: '6px 8px',
+                                    backgroundColor: appConfig.theme.colors.neutrals[`${c}`],
+                                    marginRight: '12px',
+                                    color: appConfig.theme.colors.neutrals[200],
+                                }}
+                            />
+                            {/* 
+                                Componente abaixo configurado em outro arquivo
+                                a função 'onStickerCLick' fica disponivel para nosso uso,
+                                mas a lógica está no arquivo do componente
+                            */}
+                            <ButtonSendSticker
+                                onStickerClick={(sticker) => {
+                                    // console.log('Salvando no bd');
+                                    handleNovaMensagem(`:sticker:${sticker}`);
+                                }}
+                                styleSheet={{
+                                    borderColor: appConfig.theme.colors.neutrals[`${c}`],
+                                    // alignItems: 'center',
+                                }}
+                            />
+                        </Box>
                         {/* Botão ppara enviar msg */}
                         <Button
                             // type='submit'
@@ -230,7 +285,8 @@ export default function ChatPage() {
                                 width: '35px', height: '35px', borderRadius: '25px',
                             }}
                             // onClick button alterará modo escuro e claro
-                            onClick={function () {
+                            onClick={function (e) {
+                                e.preventDefault();
                                 handleNovaMensagem(mensagem);
                             }}
 
@@ -276,12 +332,14 @@ function MessageList(props) {
                 flexDirection: 'column-reverse',
                 flex: 1,
                 color: appConfig.theme.colors.neutrals["000"],
-                marginBottom: '16px', overflow: 'hidden',
+                marginBottom: '16px', overflow: 'scroll',
             }}
         >
             {props.mensagens.map((msgAtual) => {
                 // console.log(msgAtual.id)
+                
                 return (
+                    (msgAtual.texto !== undefined) && (
                     <Text
 
                         key={msgAtual.id}
@@ -298,31 +356,71 @@ function MessageList(props) {
                         <Box
                             styleSheet={{
                                 marginBottom: '8px',
+                                display: 'inline-flex',
+                                width: '100%',
                             }}
                         >
-                            <Image
+
+                            <Box
                                 styleSheet={{
-                                    width: '20px',
-                                    height: '20px',
-                                    borderRadius: '50%',
-                                    display: 'inline-block',
-                                    marginRight: '8px',
+                                    marginBottom: '10px',
+                                    // marginRight: '0',
+                                    width: '100%',
                                 }}
-                                src={`https://github.com/${msgAtual.de}.png`}
-                            />
-                            <Text tag="strong">
-                                {msgAtual.de}
-                            </Text>
-                            <Text
-                                styleSheet={{
-                                    fontSize: '10px',
-                                    marginLeft: '8px',
-                                    color: appConfig.theme.colors.neutrals[300],
-                                }}
-                                tag="span"
                             >
-                                {(new Date().toLocaleDateString())}
-                            </Text>
+                                <Box
+                                    styleSheet={{
+                                        marginBottom: '15px',
+                                        // width: '70%',
+                                    }}
+                                // onMouseOver={(event) => {
+                                //     setTimeout(() => {
+                                //         setShowUser(true);
+                                //         console.log(showUser)
+                                //     }, 2000);
+                                // }}
+                                >
+
+                                    <Image
+                                        styleSheet={{
+                                            width: '20px',
+                                            height: '20px',
+                                            borderRadius: '50%',
+                                            display: 'inline-block',
+                                            marginRight: '8px',
+                                        }}
+                                        src={`https://github.com/${msgAtual.de}.png`}
+                                    />
+                                    <Text tag="strong">
+                                        {msgAtual.de}
+                                    </Text>
+                                    <Text
+                                        styleSheet={{
+                                            fontSize: '10px',
+                                            marginLeft: '8px',
+                                            color: appConfig.theme.colors.neutrals[300],
+                                        }}
+                                        tag="span"
+                                    >
+                                        {(new Date().toLocaleDateString())}
+                                    </Text>
+                                </Box>
+
+
+                                <Text >
+                                    {msgAtual.texto.startsWith(':sticker:') ? (
+                                        <Image src={msgAtual.texto.replace(':sticker:', '')}
+                                            styleSheet={{
+                                                width: '150px',
+                                            }}
+                                        />
+                                    )
+                                        : (
+                                            msgAtual.texto
+                                        )}
+                                </Text>
+                            </Box>
+
                             <Button
                                 label="X"
                                 fullWidth
@@ -334,7 +432,10 @@ function MessageList(props) {
                                 }}
                                 // onClick button exluirá msg atual
                                 onClick={function () {
-                                    props.remover(msgAtual.id - 1);
+                                    props.remover(msgAtual.id);
+                                    // setNaLista(false);
+                                    // console.log('Dados da props: ', props.mensagens.msgAtual);
+                                    // console.log('msgAtual.id: -> ', msgAtual.id)
                                 }}
 
                                 buttonColors={{
@@ -344,11 +445,12 @@ function MessageList(props) {
                                     mainColorStrong: appConfig.theme.colors.neutrals[600],
                                 }}
                             />
+
                         </Box>
-                        {msgAtual.texto}
 
                     </Text>
-                );
+                )
+                )
             })}
 
         </Box>

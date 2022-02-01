@@ -41,6 +41,8 @@ export default function PaginaInicial() {
     const [colored, setColor] = React.useState('100');
     const [c, setC] = React.useState('700');
 
+    const photo = username !== '' ? `${username}` : setUsername('alura');
+
     return (
         <>
             <Box
@@ -101,7 +103,7 @@ export default function PaginaInicial() {
                 onSubmit={function (InfosDoEvento) {
                     InfosDoEvento.preventDefault();
                     // console.log('Submetido');
-                    console.log(InfosDoEvento)
+                    // console.log(InfosDoEvento)
 
                     // window.location.href = '/chat';
 
@@ -132,11 +134,18 @@ export default function PaginaInicial() {
                 <TextField
                     value={username}
                     onChange={function (event) {
-                        console.log('usuário digitou', event.target.value);
+                        // console.log('usuário digitou', event.target.value);
                         // Onde tá o valor?
                         const valor = event.target.value;
                         // Trocar o valor da variável
                         setUsername(valor);
+                    }}
+                    onKeyPress={(event) => {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            roteamento.push(`/chat?username=${username}`);
+                        }
+
                     }}
                     fullWidth
                     textFieldColors={{
@@ -184,7 +193,10 @@ export default function PaginaInicial() {
                                 borderRadius: '50%',
                                 marginBottom: '16px',
                             }}
-                            src={`https://github.com/${username}.png`}
+                            // src={photo}
+                            src={`https://github.com/${photo}.png`}
+                            width={166}
+                            height={166}
                         />
                         <Text
                             variant="body4"

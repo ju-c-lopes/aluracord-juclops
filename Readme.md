@@ -14,10 +14,16 @@ Com professores <a href="https://github.com/omariosouto">Mario Souto</a> e <a hr
 ## Gif Aula 2
 
 <br>
-<img src="mode.gif" align="center">
+<img src="src/img/mode.gif" align="center">
 <hr><br>
 
 ## Gif Aula 3
 
 <br>
-<img src="chat.gif" align="center">
+<img src="src/img/chat.gif" align="center">
+<hr><br>
+
+## Gif Aula 5
+
+<br>
+<img src="src/img/final.gif" align="center">

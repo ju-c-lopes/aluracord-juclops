@@ -24,6 +24,9 @@ function GlobalStyle() {
             #__next > * {
                 flex: 1;
             }
+            .sknui-box::-webkit-scrollbar {
+                width: 0;
+            }
             /* ./App fit Height */
         `}
         </style>

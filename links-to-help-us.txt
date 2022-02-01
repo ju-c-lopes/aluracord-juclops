@@ -1,1 +1,2 @@
 environment variables = https://frontend-digest.com/environment-variables-in-next-js-9a272f0bf655
+Como fazer AJAX = https://medium.com/@omariosouto/entendendo-como-fazer-ajax-com-a-fetchapi-977ff20da3c6
