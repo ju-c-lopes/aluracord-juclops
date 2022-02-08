@@ -41,7 +41,7 @@ export default function PaginaInicial() {
     const [colored, setColor] = React.useState('100');
     const [c, setC] = React.useState('700');
 
-    const photo = username !== '' ? `${username}` : setUsername('alura');
+    const photo = username !== '' ? `${username}` : 'alura';
 
     return (
         <>
@@ -132,6 +132,7 @@ export default function PaginaInicial() {
                 /> */}
 
                 <TextField
+                    placeholder='alura'
                     value={username}
                     onChange={function (event) {
                         // console.log('usuário digitou', event.target.value);
@@ -207,7 +208,7 @@ export default function PaginaInicial() {
                                 borderRadius: '1000px'
                             }}
                         >
-                            {username}
+                            {username ? username : 'alura'}
                         </Text>
                     </Box>
                     {/* Photo Area */}
